@@ -1,5 +1,7 @@
 package com.blogapi.controller;
 
+import com.blogapi.dto.LoginRequestDto;
+import com.blogapi.dto.LoginResponseDto;
 import com.blogapi.dto.RegisterRequestDto;
 import com.blogapi.dto.RegisterResponseDto;
 import com.blogapi.service.AuthService;
@@ -23,6 +25,11 @@ public class AuthController {
     public ResponseEntity<RegisterResponseDto>register(@RequestBody RegisterRequestDto registerDto){
          RegisterResponseDto response= authService.register(registerDto);
          return ResponseEntity.ok(response);
+    }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto>login(@RequestBody LoginRequestDto loginRequestDto){
+        LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+        return ResponseEntity.ok(loginResponseDto);
     }
 
 }
