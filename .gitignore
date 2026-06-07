@@ -19,7 +19,7 @@ target/
 *.iml
 *.ipr
 .mvn/wrapper/maven-wrapper.jar
-application-local.properties
+src/main/resources/application.properties
 
 ### NetBeans ###
 /nbproject/private/
