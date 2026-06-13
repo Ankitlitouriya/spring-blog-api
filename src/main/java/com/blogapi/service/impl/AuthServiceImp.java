@@ -4,16 +4,22 @@ import com.blogapi.dto.LoginRequestDto;
 import com.blogapi.dto.LoginResponseDto;
 import com.blogapi.dto.RegisterRequestDto;
 import com.blogapi.dto.RegisterResponseDto;
+import com.blogapi.entity.RefreshToken;
 import com.blogapi.entity.Role;
 import com.blogapi.entity.User;
 
+import com.blogapi.repository.RefreshTokenRepository;
 import com.blogapi.repository.RoleRepository;
 import com.blogapi.repository.UserRepository;
 import com.blogapi.service.AuthService;
+import com.blogapi.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -22,6 +28,9 @@ public class AuthServiceImp implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtService jwtService;
 
 
 
@@ -57,10 +66,23 @@ public class AuthServiceImp implements AuthService {
               throw new RuntimeException("invalid password");
           }
 
-          loginResponseDto.setAccessToken();
-          loginResponseDto.setAccessToken();
+          String accessToken = jwtService.generateAccessToken(user);
+          String refreshToken = jwtService.generateRefreshToken(user);
 
-          userRepository.save(user);
+          loginResponseDto.setAccessToken(accessToken);
+          loginResponseDto.setRefreshToken(refreshToken);
+
+        RefreshToken refreshToken1 = new RefreshToken();
+        refreshToken1.setToken(refreshToken);
+        refreshToken1.setUser(user);
+        refreshToken1.setExpiryDate(LocalDateTime.now().plusDays(7));
+
+
+          refreshTokenRepository.save(refreshToken1);
+
+          return loginResponseDto;
+
+
 
 
     }
