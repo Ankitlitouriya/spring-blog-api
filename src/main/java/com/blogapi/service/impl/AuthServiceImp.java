@@ -111,8 +111,17 @@ public class AuthServiceImp implements AuthService {
         RefreshTokenResponse response = new RefreshTokenResponse();
         response.setAccessToken(newAccessToken);
         response.setRefreshToken(newRefreshToken);
-
-
         return response;
+    }
+
+    public LogoutResponse logout (LogoutRequest request){
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
+                .orElseThrow(()->new RuntimeException("Invalid token"));
+        refreshTokenRepository.delete(refreshToken);
+
+        LogoutResponse respose = new LogoutResponse();
+        respose.setMessage("Successfully logged out");
+        return respose;
+
     }
 }

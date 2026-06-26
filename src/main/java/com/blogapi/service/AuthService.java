@@ -13,4 +13,6 @@ public interface AuthService {
     LoginResponseDto login(LoginRequestDto request);
 
     RefreshTokenResponse refreshToken(RefreshTokenRequest request);
+
+    LogoutResponse logout(LogoutRequest request);
 }
