@@ -1,9 +1,6 @@
 package com.blogapi.service.impl;
 
-import com.blogapi.dto.LoginRequestDto;
-import com.blogapi.dto.LoginResponseDto;
-import com.blogapi.dto.RegisterRequestDto;
-import com.blogapi.dto.RegisterResponseDto;
+import com.blogapi.dto.*;
 import com.blogapi.entity.RefreshToken;
 import com.blogapi.entity.Role;
 import com.blogapi.entity.User;
@@ -18,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -77,13 +75,44 @@ public class AuthServiceImp implements AuthService {
         refreshToken1.setUser(user);
         refreshToken1.setExpiryDate(LocalDateTime.now().plusDays(7));
 
-
           refreshTokenRepository.save(refreshToken1);
-
           return loginResponseDto;
+    }
+
+    public  RefreshTokenResponse refreshToken(RefreshTokenRequest request){
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshtoken())
+                .orElseThrow(()->new RuntimeException("Invalid Token"));
+        User user = refreshToken.getUser();
+        //Validation token
+        if (!jwtService.isTokenValid(refreshToken.getToken(),user)){
+            throw new RuntimeException("Invalid token");
+        }
+        //Generate new tokens
+        String newAccessToken = jwtService.generateAccessToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        //delet old token
+        refreshTokenRepository.delete(refreshToken);
+        //creating new refresh token
+        RefreshToken newToken = new RefreshToken();
+        Date expiry = jwtService.extractExpiration(newRefreshToken);
+        LocalDateTime expiryDate = expiry.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        newToken.setExpiryDate(expiryDate);
+        newToken.setToken(newRefreshToken);
+        newToken.setUser(user);
+
+        //save new refresh token
+        refreshTokenRepository.save(newToken);
+
+        //Prepraring the response
+        RefreshTokenResponse response = new RefreshTokenResponse();
+        response.setAccessToken(newAccessToken);
+        response.setRefreshToken(newRefreshToken);
 
 
-
-
+        return response;
     }
 }

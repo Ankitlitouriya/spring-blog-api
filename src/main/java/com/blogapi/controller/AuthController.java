@@ -1,9 +1,6 @@
 package com.blogapi.controller;
 
-import com.blogapi.dto.LoginRequestDto;
-import com.blogapi.dto.LoginResponseDto;
-import com.blogapi.dto.RegisterRequestDto;
-import com.blogapi.dto.RegisterResponseDto;
+import com.blogapi.dto.*;
 import com.blogapi.service.AuthService;
 import com.blogapi.service.impl.AuthServiceImp;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +28,13 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto>login(@RequestBody LoginRequestDto loginRequestDto){
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
         return ResponseEntity.ok(loginResponseDto);
+    }
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponse>refreshToken(@RequestBody  RefreshTokenRequest request){
+
+        RefreshTokenResponse refreshTokenResponse = authService.refreshToken(request);
+
+        return ResponseEntity.ok(refreshTokenResponse);
     }
 
 }
