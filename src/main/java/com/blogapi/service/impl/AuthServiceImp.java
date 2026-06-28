@@ -5,6 +5,8 @@ import com.blogapi.entity.RefreshToken;
 import com.blogapi.entity.Role;
 import com.blogapi.entity.User;
 
+import com.blogapi.exception.InvalidTokenException;
+import com.blogapi.exception.UserNotFoundException;
 import com.blogapi.repository.RefreshTokenRepository;
 import com.blogapi.repository.RoleRepository;
 import com.blogapi.repository.UserRepository;
@@ -55,7 +57,7 @@ public class AuthServiceImp implements AuthService {
         LoginResponseDto loginResponseDto = new LoginResponseDto();
 
          User user = userRepository.findByEmail(loginRequest.getEmail())
-                 .orElseThrow(()->new RuntimeException("invalid user and password"));
+                 .orElseThrow(()->new UserNotFoundException("User not found"));
 
           if (!passwordEncoder.matches(
                    loginRequest.getPassword(),
@@ -81,11 +83,11 @@ public class AuthServiceImp implements AuthService {
 
     public  RefreshTokenResponse refreshToken(RefreshTokenRequest request){
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshtoken())
-                .orElseThrow(()->new RuntimeException("Invalid Token"));
+                .orElseThrow(()->new InvalidTokenException("Invalid Token"));
         User user = refreshToken.getUser();
         //Validation token
         if (!jwtService.isTokenValid(refreshToken.getToken(),user)){
-            throw new RuntimeException("Invalid token");
+            throw new InvalidTokenException("Invalid token");
         }
         //Generate new tokens
         String newAccessToken = jwtService.generateAccessToken(user);
@@ -116,7 +118,7 @@ public class AuthServiceImp implements AuthService {
 
     public LogoutResponse logout (LogoutRequest request){
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
-                .orElseThrow(()->new RuntimeException("Invalid token"));
+                .orElseThrow(()->new InvalidTokenException("Invalid token"));
         refreshTokenRepository.delete(refreshToken);
 
         LogoutResponse respose = new LogoutResponse();
