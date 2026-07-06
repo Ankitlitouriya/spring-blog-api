@@ -56,7 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println(validToken);
 
          if (validToken) {
-
              Collection<? extends GrantedAuthority> authorities =
                      user.getRoles()
                              .stream()
@@ -65,15 +64,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                              role.getName()
                                      ))
                              .toList();
-
-
              Authentication authentication =
                      new UsernamePasswordAuthenticationToken(user, null, authorities);
-
              SecurityContextHolder
                      .getContext()
                      .setAuthentication(authentication);
+             System.out.println("Authorities = " + authorities);
          }
+
          filterChain.doFilter(request,response);
 
     }

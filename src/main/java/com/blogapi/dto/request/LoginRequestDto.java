@@ -1,4 +1,4 @@
-package com.blogapi.dto;
+package com.blogapi.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequestDto {
-
-    private String name;
+public class LoginRequestDto {
 
     private String email;
 

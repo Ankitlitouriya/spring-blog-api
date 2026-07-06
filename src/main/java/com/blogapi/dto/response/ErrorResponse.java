@@ -1,16 +1,19 @@
-package com.blogapi.dto;
+package com.blogapi.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterResponseDto {
+public class ErrorResponse {
 
+    private int status;
     private String message;
-
+    private LocalDateTime timestamp;
 }

@@ -1,4 +1,4 @@
-package com.blogapi.dto;
+package com.blogapi.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,8 +7,10 @@ import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Getter
-public class LogoutResponse {
-    private String message;
+@Setter
+public class CategoryResponse {
+
+    private long id;
+    private String name;
 }

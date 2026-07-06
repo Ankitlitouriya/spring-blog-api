@@ -1,6 +1,6 @@
 package com.blogapi.exception;
 
-import com.blogapi.dto.ErrorResponse;
+import com.blogapi.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,5 +36,19 @@ public class GlobalExceptionHandler {
         response.setTimestamp(LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(ResourceAlreadyExistException.class)
+    public ResponseEntity<ErrorResponse>handleResourceAlreadyExistException(
+            ResourceAlreadyExistException ex
+    ){
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(HttpStatus.CONFLICT.value());
+        response.setMessage(ex.getMessage());
+        response.setTimestamp(LocalDateTime.now());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+
     }
 }

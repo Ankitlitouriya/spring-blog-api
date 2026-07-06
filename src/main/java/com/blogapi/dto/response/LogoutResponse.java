@@ -1,14 +1,14 @@
-package com.blogapi.dto;
+package com.blogapi.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LogoutRequest {
-    private String refreshToken;
+@Setter
+@Getter
+public class LogoutResponse {
+    private String message;
 }

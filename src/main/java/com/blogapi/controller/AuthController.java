@@ -1,12 +1,16 @@
 package com.blogapi.controller;
 
-import com.blogapi.dto.*;
+import com.blogapi.dto.request.LoginRequestDto;
+import com.blogapi.dto.request.LogoutRequest;
+import com.blogapi.dto.request.RefreshTokenRequest;
+import com.blogapi.dto.request.RegisterRequestDto;
+import com.blogapi.dto.response.LoginResponseDto;
+import com.blogapi.dto.response.LogoutResponse;
+import com.blogapi.dto.response.RefreshTokenResponse;
+import com.blogapi.dto.response.RegisterResponseDto;
 import com.blogapi.service.AuthService;
-import com.blogapi.service.impl.AuthServiceImp;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +34,7 @@ public class AuthController {
         return ResponseEntity.ok(loginResponseDto);
     }
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshTokenResponse>refreshToken(@RequestBody  RefreshTokenRequest request){
+    public ResponseEntity<RefreshTokenResponse>refreshToken(@RequestBody RefreshTokenRequest request){
 
         RefreshTokenResponse refreshTokenResponse = authService.refreshToken(request);
 
