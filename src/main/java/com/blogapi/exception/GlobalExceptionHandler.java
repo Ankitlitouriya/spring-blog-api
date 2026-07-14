@@ -51,4 +51,15 @@ public class GlobalExceptionHandler {
                 .body(response);
 
     }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse>handleAccessDeniedException(AccessDeniedException ex)
+    {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(HttpStatus.CONTINUE.value());
+        response.setMessage(ex.getMessage());
+        response.setTimestamp(LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(response);
+    }
 }

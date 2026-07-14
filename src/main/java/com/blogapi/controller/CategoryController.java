@@ -45,6 +45,7 @@ public class CategoryController {
     }
     //Update
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponse>updateCategories(@PathVariable long id,
                                                             @RequestBody CategoryRequest request )
     {
@@ -56,7 +57,7 @@ public class CategoryController {
     //delet categories
 
     @DeleteMapping("/{id}")
-
+    @PreAuthorize("hasRole('ADMIN')")
      public ResponseEntity<?> deletCategories(@PathVariable long id){
         categoryService.deletCategories(id);
         return ResponseEntity.noContent().build();
