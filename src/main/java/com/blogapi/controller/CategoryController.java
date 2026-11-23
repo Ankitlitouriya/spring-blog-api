@@ -3,6 +3,8 @@ package com.blogapi.controller;
 import com.blogapi.dto.request.CategoryRequest;
 import com.blogapi.dto.response.CategoryResponse;
 import com.blogapi.service.CategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +18,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/categories")
+@SecurityRequirement(name = "bearerAuth")
 public class CategoryController {
     private final CategoryService categoryService;
     //Create categories
     @PostMapping()
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CategoryResponse>createdCategory(@RequestBody CategoryRequest request){
+    public ResponseEntity<CategoryResponse>createdCategory(@Valid @RequestBody CategoryRequest request){
          CategoryResponse categoryResponse =  categoryService.createCategory(request);
 
          return ResponseEntity.status(HttpStatus.CREATED)
@@ -46,7 +49,7 @@ public class CategoryController {
     //Update
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CategoryResponse>updateCategories(@PathVariable long id,
+    public ResponseEntity<CategoryResponse>updateCategories(@Valid @PathVariable long id,
                                                             @RequestBody CategoryRequest request )
     {
      CategoryResponse categoryResponse = categoryService.updateCategories(id,request);

@@ -1,21 +1,24 @@
 package com.blogapi.service.impl;
 
 import com.blogapi.dto.request.PostRequestDto;
-import com.blogapi.dto.response.CategoryResponse;
 import com.blogapi.dto.response.PostResponseDto;
 import com.blogapi.entity.Category;
 import com.blogapi.entity.Post;
 import com.blogapi.entity.User;
-import com.blogapi.exception.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import com.blogapi.exception.ResourceNotFoundException;
+import com.blogapi.mapper.PostMapper;
 import com.blogapi.repository.CategoryRepository;
 import com.blogapi.repository.PostRepository;
 import com.blogapi.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +28,8 @@ public class PostServiceImpl implements PostService {
 
     private final CategoryRepository categoryRepository;
     private final PostRepository postRepository;
+
+    private final PostMapper postMapper;
 
     //Create post
     @Override
@@ -44,29 +49,25 @@ public class PostServiceImpl implements PostService {
         post.setCategory(category);
         post.setContent(requestDto.getContent());
         post.setCommentList(new ArrayList<>());
-        postRepository.save(post);
+        Post savedPost = postRepository.save(post);
 
-        postResponseDto.setId(post.getId());
-        postResponseDto.setContent(post.getContent());
-        postResponseDto.setAuthorName(post.getAuthor().getName());
-        postResponseDto.setCategoryName(post.getCategory().getName());
-        postResponseDto.setTitle(post.getTitle());
-        return postResponseDto;
+        return postMapper.toResponse(savedPost);
+
+
     }
     //find All post
     @Override
-    public List<PostResponseDto>findAllPost() {
-        List<Post>postList = postRepository.findAll();
+    public Page<PostResponseDto> findAllPost(int page, int size,String sortBy,String direction) {
 
-        return postList.stream().map(post -> {
-            PostResponseDto postResponseDto = new PostResponseDto();
-            postResponseDto.setId(post.getId());
-            postResponseDto.setTitle(post.getTitle());
-            postResponseDto.setContent(post.getContent());
-            postResponseDto.setAuthorName(post.getAuthor().getName());
-            postResponseDto.setCategoryName(post.getCategory().getName());
-            return postResponseDto;
-        }).toList();
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Post> postPage = postRepository.findAll(pageable);
+
+        return postPage.map(postMapper::toResponse);
     }
 
     //Find post by id
@@ -75,14 +76,7 @@ public class PostServiceImpl implements PostService {
       Post post = postRepository.findById(id)
               .orElseThrow(()->new ResourceNotFoundException("post not found"));
 
-      PostResponseDto postResponseDto = new PostResponseDto();
-
-      postResponseDto.setId(post.getId());
-      postResponseDto.setTitle(post.getTitle());
-      postResponseDto.setContent(post.getContent());
-      postResponseDto.setAuthorName(post.getAuthor().getName());
-      postResponseDto.setCategoryName(post.getCategory().getName());
-      return postResponseDto;
+       return postMapper.toResponse(post);
     }
    //Update post
     @Override
@@ -104,15 +98,9 @@ public class PostServiceImpl implements PostService {
         post.setContent(requestDto.getContent());
         post.setCategory(category);
 
-        Post savedPost = postRepository.save(post);
+            Post savedPost = postRepository.save(post);
 
-        PostResponseDto postResponseDto = new PostResponseDto();
-        postResponseDto.setId(savedPost.getId());
-        postResponseDto.setTitle(savedPost.getTitle());
-        postResponseDto.setContent(savedPost.getContent());
-        postResponseDto.setAuthorName(savedPost.getAuthor().getName());
-        postResponseDto.setCategoryName(savedPost.getCategory().getName());
-        return postResponseDto;
+           return postMapper.toResponse(savedPost);
     }
     //Delete Post
     @Override
@@ -127,9 +115,31 @@ public class PostServiceImpl implements PostService {
                 .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
 
         if (!currentUser.getId().equals(post.getAuthor().getId()) && !isAdmin){
-            throw new AccessDeniedException("you are not allowed to delet this post");
+            throw new AccessDeniedException("you are not allowed to delete this post");
         }
 
         postRepository.deleteById(id);
+    }
+    @Override
+    public Page<PostResponseDto> searchPosts(
+            String keyword,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ){
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ?Sort.by(sortBy).ascending()
+                :Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page,size,sort);
+
+        Page<Post>postPage =
+                postRepository.findByTitleContainingIgnoreCase(
+                        keyword,
+                        pageable
+                );
+            return postPage.map(postMapper::toResponse);
+
     }
 }

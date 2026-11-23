@@ -9,6 +9,7 @@ import com.blogapi.dto.response.LogoutResponse;
 import com.blogapi.dto.response.RefreshTokenResponse;
 import com.blogapi.dto.response.RegisterResponseDto;
 import com.blogapi.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +30,7 @@ public class AuthController {
          return ResponseEntity.ok(response);
     }
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto>login(@RequestBody LoginRequestDto loginRequestDto){
+    public ResponseEntity<LoginResponseDto>login(@Valid @RequestBody LoginRequestDto loginRequestDto){
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
         return ResponseEntity.ok(loginResponseDto);
     }

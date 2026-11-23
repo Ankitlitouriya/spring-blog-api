@@ -1,17 +1,11 @@
 package com.blogapi.service.impl;
-
-import com.blogapi.entity.RefreshToken;
 import com.blogapi.entity.Role;
 import com.blogapi.entity.User;
-import com.blogapi.repository.UserRepository;
 import com.blogapi.service.JwtService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
@@ -19,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import io.jsonwebtoken.Claims;
-
 import javax.crypto.SecretKey;
 
 @Service
@@ -58,9 +51,9 @@ public class JwtServiceImpl implements JwtService {
         // return token
     }
 
-     private Key getSigningKey(){
-        byte[] KeySecret = secret.getBytes(StandardCharsets.UTF_8);
-         return Keys.hmacShaKeyFor(KeySecret);
+    private SecretKey getSigningKey() {
+        byte[] keySecret = secret.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keySecret);
     }
 
     @Override
@@ -79,7 +72,7 @@ public class JwtServiceImpl implements JwtService {
 
     public Claims extractClaims(String token){
         return Jwts.parser()
-                .verifyWith((SecretKey)getSigningKey())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

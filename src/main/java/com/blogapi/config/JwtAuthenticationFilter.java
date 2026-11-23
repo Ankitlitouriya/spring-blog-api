@@ -34,29 +34,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
-        System.out.println("Header = " + authHeader);
 
 
-        System.out.println("JWT Filter Executed");
         if (authHeader==null || !authHeader.startsWith("Bearer ")){
-
             filterChain.doFilter(request,response);
-
-             return;
-        }
+             return;}
          String jwtToken = authHeader.substring(7);
-        System.out.println(jwtToken);
          String email = jwtService.extractEmail(jwtToken);
-        System.out.println(email);
          User user = userRepository.findByEmail(email)
                  .orElseThrow(()->new RuntimeException("User not found"));
 
          boolean validToken = jwtService.isTokenValid(jwtToken,user);
 
-        System.out.println(validToken);
-
          if (validToken) {
-             Collection<? extends GrantedAuthority> authorities =
+             Collection<? extends GrantedAuthority>
+                     authorities =
                      user.getRoles()
                              .stream()
                              .map(role ->
@@ -69,7 +61,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
              SecurityContextHolder
                      .getContext()
                      .setAuthentication(authentication);
-             System.out.println("Authorities = " + authorities);
          }
 
          filterChain.doFilter(request,response);

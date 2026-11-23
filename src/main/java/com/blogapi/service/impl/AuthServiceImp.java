@@ -1,5 +1,4 @@
 package com.blogapi.service.impl;
-
 import com.blogapi.dto.request.LoginRequestDto;
 import com.blogapi.dto.request.LogoutRequest;
 import com.blogapi.dto.request.RefreshTokenRequest;
@@ -11,8 +10,8 @@ import com.blogapi.dto.response.RegisterResponseDto;
 import com.blogapi.entity.RefreshToken;
 import com.blogapi.entity.Role;
 import com.blogapi.entity.User;
-
 import com.blogapi.exception.InvalidTokenException;
+import com.blogapi.exception.ResourceAlreadyExistException;
 import com.blogapi.exception.UserNotFoundException;
 import com.blogapi.repository.RefreshTokenRepository;
 import com.blogapi.repository.RoleRepository;
@@ -45,8 +44,7 @@ public class AuthServiceImp implements AuthService {
 
         RegisterResponseDto response = new RegisterResponseDto();
         if (userRepository.existsByEmail(requestDto.getEmail())){
-            response.setMessage("Email Id already exist");
-            return response;
+             throw new ResourceAlreadyExistException("Email already exist");
         }
        Role role =  roleRepository.findByName("ROLE_USER")
                .orElseThrow(()->new RuntimeException("User role not found"));
@@ -69,7 +67,9 @@ public class AuthServiceImp implements AuthService {
                    loginRequest.getPassword(),
                    user.getPassword()
            )){
-              throw new RuntimeException("invalid password");
+              throw new org.springframework.security.authentication.BadCredentialsException(
+                      "Invalid email or password"
+              );
           }
 
           String accessToken = jwtService.generateAccessToken(user);
@@ -81,7 +81,13 @@ public class AuthServiceImp implements AuthService {
         RefreshToken refreshToken1 = new RefreshToken();
         refreshToken1.setToken(refreshToken);
         refreshToken1.setUser(user);
-        refreshToken1.setExpiryDate(LocalDateTime.now().plusDays(7));
+        Date expiry = jwtService.extractExpiration(refreshToken);
+
+        LocalDateTime expiryDate = expiry.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        refreshToken1.setExpiryDate(expiryDate);
 
           refreshTokenRepository.save(refreshToken1);
           return loginResponseDto;
@@ -132,4 +138,5 @@ public class AuthServiceImp implements AuthService {
         return respose;
 
     }
+
 }
